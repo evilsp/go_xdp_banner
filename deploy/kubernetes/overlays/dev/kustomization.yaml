@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namePrefix: dev-
+namespace: xdp-banner
+
+images:
+- name: demo-client
+  newName: reg.joshua.su:2/xdp-banner/demo-client
+  newTag: main
+- name: demo-server
+  newName: reg.joshua.su:2/xdp-banner/demo-server
+  newTag: main
+- name: orch
+  newName: reg.joshua.su:2/xdp-banner/orch
+  newTag: main
+- name: agent
+  newName: reg.joshua.su:2/xdp-banner/agent
+  newTag: main
+
+patches:
+- path: serviceaccount-patch.yaml
+- path: client-statefulset-patch.yaml
+- patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 3
+  target:
+    labelSelector: "app.kubernetes.io/component=workload"
+
+secretGenerator:
+  - name: orch-join-secret
+    files:
+      - orch_join_secret
+
+resources:
+- ../../base

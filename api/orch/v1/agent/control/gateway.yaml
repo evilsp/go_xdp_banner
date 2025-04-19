@@ -1,0 +1,62 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    # Register
+    - selector: "agent.control.ControlService.Register"
+      post: "/v1/agent/control/register"
+      body: "*"
+    
+    # Unregister
+    - selector: "agent.control.ControlService.Unregister"
+      post: "/v1/agent/control/unregister"
+      body: "*"
+    
+    # ListRegisration
+    - selector: "agent.control.ControlService.ListRegistration"
+      get: "/v1/agent/control/listregistration"
+
+    # Init
+    - selector: "agent.control.ControlService.Init"
+      post: "/v1/agent/control/init"
+      body: "*"
+
+    # Enable
+    - selector: "agent.control.ControlService.Enable"
+      post: "/v1/agent/control/enable"
+      body: "*"
+
+    # SetConfig
+    - selector: "agent.control.ControlService.SetConfig"
+      post: "/v1/agent/control/setconfig"
+      body: "*"
+
+    # GetConfig
+    - selector: "agent.control.ControlService.GetConfig"
+      get: "/v1/agent/control/getconfig"
+    
+    # SetLabels
+    - selector: "agent.control.ControlService.SetLabels"
+      post: "/v1/agent/control/setlabels"
+      body: "*"
+    
+    # GetLabels
+    - selector: "agent.control.ControlService.GetLabels"
+      get: "/v1/agent/control/getlabels"
+
+    # GetStatus
+    - selector: "agent.control.ControlService.GetStatus"
+      get: "/v1/agent/control/getstatus"
+
+    # GetInfo
+    - selector: "agent.control.ControlService.GetInfo"
+      get: "/v1/agent/control/getinfo"
+    
+    # GetAgent
+    - selector: "agent.control.ControlService.GetAgent"
+      get: "/v1/agent/control/getagent"
+
+    # ListAgents
+    - selector: "agent.control.ControlService.ListAgents"
+      get: "/v1/agent/control/listagents"

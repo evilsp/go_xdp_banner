@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: client
+  labels:
+    app: client
+    app.kubernetes.io/component: workload
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: client
+  serviceName: client-headless
+  template:
+    metadata:
+      labels:
+        app: client
+    spec:
+      serviceAccountName: xdp-banner
+      containers:
+      - name: client
+        image: demo-client:latest
+        imagePullPolicy: Always
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: DEMO_ENDPOINT
+          value: "172.22.14.1"
+        resources:
+          limits:
+            memory: "32Mi"
+            cpu: "100m"
+          requests:
+            memory: "16Mi"
+            cpu: "50m"
+      - name: agent
+        image: agent:latest
+        imagePullPolicy: Always
+        securityContext:
+          capabilities:
+            add:
+              - SYS_ADMIN   # 允许挂载 eBPF 文件系统
+              - BPF         # Linux 5.8+ 可单独赋予 eBPF 权限
+              - NET_ADMIN   # 允许创建和管理网络接口
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "2000m"
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+        volumeMounts:
+        - name: agent-cert
+          mountPath: /etc/xdp-banner
+  volumeClaimTemplates:
+  - metadata:
+      name: agent-cert
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Mi

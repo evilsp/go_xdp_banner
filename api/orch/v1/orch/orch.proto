@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package orch;
+import "google/protobuf/struct.proto";
+
+option go_package = "orch/v1/orch";
+
+// Agent Control Service
+service OrchService {
+  // Get the info of an orch
+  rpc GetInfo (GetInfoRequest) returns (GetInfoResponse);
+
+  // List the info of all orchs
+  rpc ListInfo (ListInfoRequest) returns (ListInfoResponse);
+}
+
+message GetInfoRequest {
+  string name = 1;         // name of the orch
+}
+
+message GetInfoResponse {
+  google.protobuf.Struct info =1 ;        // info of the orch
+}
+
+message ListInfoRequest {
+  int64 pagesize = 1;         // number of info per page
+  string cursor = 2;         // cursor for pagination
+}
+
+message ListInfoResponse {
+  int64 total = 1;         // total number of agents
+  int64 totalPage = 2;         // total number of pages
+  int64 currentPage = 3;         // current page
+  bool hasNext = 4;         // has next page
+  string nextCursor = 5;         // cursor for next page
+
+  map<string, google.protobuf.Struct> items = 6;     // list of info with name as key
+}

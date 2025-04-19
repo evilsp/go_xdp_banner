@@ -1,0 +1,12 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    # GetInfo
+    - selector: "orch.OrchService.GetInfo"
+      get: "/v1/orch/getinfo"
+    
+    # ListInfo
+    - selector: "orch.OrchService.ListInfo"
+      get: "/v1/orch/listinfo"

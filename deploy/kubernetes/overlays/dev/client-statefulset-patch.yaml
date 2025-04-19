@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: client
+spec:
+  template:
+    spec:
+      containers:
+      - name: agent
+        env:
+        - name: xdp-banner_ORCH_ENDPOINT
+          value: "dev-demo-orch-headless.xdp-banner.svc.cluster.local"

@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package control;
+
+option go_package = "agent/v1/control";
+
+// Agent exposed control service
+service ControlService {
+  // Start the agent
+  rpc Start(StartRequest) returns (StartResponse) {}
+
+  // Stop the agent
+  rpc Stop(StopRequest) returns (StopResponse) {}
+
+  // Reload the agent
+  rpc Reload(ReloadRequest) returns (ReloadResponse) {}
+}
+
+// Start request
+message StartRequest {
+  string rule_name = 1;
+}
+
+message StartResponse {}
+
+// Stop request
+message StopRequest {
+  // TODO: force stop
+} 
+
+message StopResponse {}
+
+// Reload request
+message ReloadRequest {
+  string rule_name = 1;
+}
+
+message ReloadResponse {}
+

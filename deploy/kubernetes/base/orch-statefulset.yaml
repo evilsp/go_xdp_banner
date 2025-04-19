@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: orch
+  labels:
+    app: orch
+    #app.kubernetes.io/component: workload
+spec:
+  replicas: 3
+  serviceName: orch-headless
+  selector:
+    matchLabels:
+      app: orch
+  template:
+    metadata:
+      labels:
+        app: orch
+    spec:
+      containers:
+      - name: orch
+        image: orch:latest
+        imagePullPolicy: Always
+        args: ["server"]
+        ports:
+        - name: grpc
+          containerPort: 6061
+        - name: http
+          containerPort: 6062
+        volumeMounts:
+        - name: xdp-banner-cert
+          mountPath: /etc/xdp-banner
+        resources:
+          limits:
+            memory: "2046Mi"
+            cpu: "3000m"
+          requests:
+            memory: "512Mi"
+            cpu: "1000m"
+      serviceAccountName: xdp-banner
+      initContainers:
+      - name: init-orch
+        image: orch:latest
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            if [ -z "$(ls -A /etc/xdp-banner)" ]; then
+              orch join --token $JOIN_SECRET
+            fi
+        env:
+        - name: JOIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: orch-join-secret
+              key: orch_join_secret
+        volumeMounts:
+        - name: xdp-banner-cert
+          mountPath: /etc/xdp-banner
+  volumeClaimTemplates:
+  - metadata:
+      name: xdp-banner-cert
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Mi

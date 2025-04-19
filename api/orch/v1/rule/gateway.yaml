@@ -1,0 +1,41 @@
+# go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+# go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+# go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
+
+# Source repository：https://cloud.google.com/endpoints/docs/grpc-service-config/reference/rpc/google.api#google.api.HttpRule
+
+# protoc -I. \
+# --go_out . \
+# --go_opt paths=source_relative \
+# --go-grpc_out . \
+# --go-grpc_opt paths=source_relative \
+# --grpc-gateway_out . \
+# --grpc-gateway_opt paths=source_relative \
+# --grpc-gateway_opt grpc_api_configuration=gateway.yaml  \
+# --grpc-gateway_opt allow_delete_body=true  \
+# rule.proto
+
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: rule.RuleService.AddRule
+      post: /v1/rules
+      body: "*"
+
+    - selector: rule.RuleService.DeleteRule
+      delete: /v1/rules
+      body: "*"
+
+    - selector: rule.RuleService.UpdateRule
+      put: /v1/rules
+      body: "*"
+
+    - selector: rule.RuleService.GetRule
+      get: /v1/rules/{name}
+
+    - selector: rule.RuleService.ListRule
+      get: /v1/rules
+      additional_bindings:
+        - get: /v1/rules/pagesize/{pagesize}/cursor/{cursor}

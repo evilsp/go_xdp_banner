@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "bpf.h": "c",
+        "bpf_helpers.h": "c",
+        "sockmap.h": "c"
+    },
+    "protoc": {
+        "options": [
+            "--proto_path=api",
+        ]
+    }
+}

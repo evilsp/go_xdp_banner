@@ -1,0 +1,93 @@
+// Use https://cloud.google.com/endpoints/docs/grpc-service-config/reference/rpc/google.api#google.api.HttpRule
+syntax = "proto3";
+
+package rule;
+import "google/protobuf/struct.proto";
+
+option go_package = "orch/v1/rule";
+
+enum EventType {
+  PUT = 0;
+  DELETE = 1;
+}
+
+// Rule 服务
+service RuleService {
+  rpc AddRule (AddRuleRequest) returns (AddRuleResponse);
+  rpc DeleteRule (DeleteRuleRequest) returns (DeleteRuleResponse);
+  rpc UpdateRule (UpdateRuleRequest) returns (UpdateRuleResponse);
+  rpc GetRule (GetRuleRequest) returns (GetRuleResponse);
+  rpc ListRule (ListRuleRequest) returns (ListRuleResponse);
+  rpc WatchRuleResources(WatchRuleRequest) returns (stream WatchRuleResponse);
+}
+
+//{
+//  "cidr": "192.168.1.0/24",
+//  "protocol": "TCP",
+//  "sport": 8080,
+//  "dport": 80,
+//  "comment": "This is an example rule",
+//  "duration": "3600s"
+//}
+
+// Add rule with Port
+message AddRuleRequest {
+  string name = 1;
+  google.protobuf.Struct rule = 2;
+}
+
+message AddRuleResponse {
+}
+
+
+message DeleteRuleRequest {
+  string name = 1;
+  google.protobuf.Struct rule = 2;
+}
+
+message DeleteRuleResponse {
+}
+
+
+message UpdateRuleRequest {
+  string name = 1;
+  google.protobuf.Struct rule = 2;
+}
+
+message UpdateRuleResponse {
+}
+
+
+message GetRuleRequest {
+  string name = 1;
+}
+
+message GetRuleResponse {
+  google.protobuf.Struct rule = 1;
+}
+
+
+message ListRuleRequest {
+    int64 pagesize = 1;
+    string cursor = 2;
+}
+
+message ListRuleResponse {
+  int64 total = 1;
+  int64 totalPage = 2;
+  int64 currentPage = 3;
+  bool  hasNext = 4;
+  string nextCursor = 5;
+
+  map<string,google.protobuf.Struct> items = 6;
+}
+
+message WatchRuleRequest {
+  string ruleName = 1;
+}
+
+message WatchRuleResponse {
+  string ruleKey = 1;
+  google.protobuf.Struct ruleVal = 2;
+  EventType event_type = 3;
+}

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package agent.reoprt;
+
+import "google/protobuf/timestamp.proto";
+
+
+option go_package = "orch/v1/agent/report";
+
+// Agent Control Service
+service ReportService {
+  // Report the status of an agent
+  rpc Report (Status) returns (ReportResponse);
+}
+
+message ErrorTime {
+  string message = 1;
+  google.protobuf.Timestamp retry_at = 2;
+}
+
+// Request for reporting the status of an agent
+message Status {
+  string name = 1;
+  string grpc_endpoint = 2;
+  string config_name = 3;
+  Phase phase = 4;
+  ErrorTime error = 5;  
+}
+
+
+enum Phase {
+  Unknown = 0;
+  Ready = 1;
+  Running = 2;
+  Stopped = 3;
+}
+
+message ReportResponse {}

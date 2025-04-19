@@ -1,0 +1,2 @@
+#Compiled with ebpf2go
+go run github.com/cilium/ebpf/cmd/bpf2go -go-package xdp xdp xdp_banner.c --  -I/usr/include -I/usr/lib/gcc/x86_64-linux-gnu/12/include -I/usr/include/x86_64-linux-gnu/

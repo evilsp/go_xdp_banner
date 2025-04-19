@@ -1,0 +1,181 @@
+syntax = "proto3";
+
+package agent.control;
+import "google/protobuf/struct.proto";
+
+option go_package = "orch/v1/agent/control";
+
+// Agent Control Service
+service ControlService {
+  // Register a new agent by the admin
+  rpc Register (RegisterRequest) returns (RegisterResponse);
+
+  // Unregister an agent by the admin
+  rpc Unregister (UnRegisterRequest) returns (UnRegisterResponse);
+
+  // List all registered agents
+  rpc ListRegistration (ListRegistrationRequest) returns (ListRegistrationResponse);
+  
+  // Agent initializes itself by providing the registration token
+  rpc Init (InitRequest) returns (InitResponse);
+
+  // Enable or disable an agent by the admin
+  rpc Enable (EnableRequest) returns (EnableResponse);
+
+  // Set the config name to an agent
+  rpc SetConfig (SetConfigRequest) returns (SetConfigResponse);
+
+  // Get the config name of an agent
+  rpc GetConfig (GetConfigRequest) returns (GetConfigResponse);
+
+  // Set the labels to an agent
+  rpc SetLabels (SetLabelsRequest) returns (SetLabelsResponse);
+
+  // Get the labels of an agent
+  rpc GetLabels (GetLabelsRequest) returns (GetLabelsResponse);
+
+  // Get the status of an agent
+  rpc GetStatus (GetStatusRequest) returns (GetStatusResponse);
+
+  // Get the info of an agent
+  rpc GetInfo (GetInfoRequest) returns (GetInfoResponse);
+
+  // Get the agent by name
+  rpc GetAgent (GetAgentRequest) returns (GetAgentResponse);
+  // List all agents
+  rpc ListAgents (ListAgentsRequest) returns (ListAgentsResponse);
+}
+
+// Request to register a new agent
+message RegisterRequest {
+  string name = 1;             // Name of the agent
+}
+
+// Response for RegisterAgent, includes the registration token
+message RegisterResponse {
+  string token = 1;            // Registration token to be used by the agent
+}
+
+message UnRegisterRequest {
+  string name = 1;             // Name of the agent
+}
+
+message UnRegisterResponse {
+}
+
+message ListRegistrationRequest {
+  int64 pagesize = 1;         // number of agents per page
+  string cursor = 2;         // cursor for pagination
+}
+
+message ListRegistrationResponse {
+  int64 total = 1;         // total number of agents
+  int64 totalPage = 2;         // total number of pages
+  int64 currentPage = 3;         // current page
+  bool hasNext = 4;         // has next page
+  string nextCursor = 5;         // cursor for next page
+
+  map<string, RegisterResponse> registration = 6;         // list of agents with name as key
+}
+
+// Request for agent initialization
+message InitRequest {
+  string name = 1;             // Name of the agent
+  string token = 2;            // Registration token provided during agent registration
+  bytes pubKey_pem = 3;       // PEM encoded public key of the agent
+  repeated string ip_addresses = 4; // List of IP addresses to be used in the certificate
+}
+
+// Response for InitAgent, includes certificate and other initialization data
+message InitResponse {
+  bytes cert = 1;             // Certificate issued to the agent in PEM format
+  bytes ca = 2;             // Cluster CA certificate in PEM format
+}
+
+// Request to enable or disable an agent
+message EnableRequest {
+  string name = 1;         // name of the agent to enable/disable
+  bool enable = 2;             // True to enable, false to disable
+}
+
+// Response for EnableAgent
+message EnableResponse {
+}
+
+
+message SetConfigRequest {
+  string name = 1;         // name of the agent
+  string config_name = 2;         // name of the config
+}
+
+message SetConfigResponse {
+}
+
+message GetConfigRequest {
+  string name = 1;         // name of the agent
+}
+
+message GetConfigResponse {
+  string config_name = 1;         // name of the config
+}
+
+message SetLabelsRequest {
+  string name = 1;         // name of the agent
+  repeated string labels = 2;         // labels to set
+}
+
+message SetLabelsResponse {
+}
+
+message GetLabelsRequest {
+  string name = 1;         // name of the agent
+}
+
+message GetLabelsResponse {
+  repeated string labels = 1;         // labels of the agent
+}
+
+message GetStatusRequest {
+  string name = 1;         // name of the agent
+}
+
+message GetStatusResponse {
+  google.protobuf.Struct status = 1;         // status of the agent
+}
+
+message GetInfoRequest {
+  string name = 1;         // name of the agent
+}
+
+message GetInfoResponse {
+  google.protobuf.Struct info =1 ;        // info of the agent
+}
+
+message GetAgentRequest {
+  string name = 1;         // name of the agent
+}
+
+message GetAgentResponse {
+  google.protobuf.Struct info = 1;         // info of the agent
+  google.protobuf.Struct status = 2;         // status of the agent
+}
+
+message ListAgentsRequest {
+  int64 pagesize = 1;         // number of agents per page
+  string cursor = 2;         // cursor for pagination
+}
+
+message Agent {
+  google.protobuf.Struct info = 1;         // info of the agent
+  google.protobuf.Struct status = 2;         // status of the agent
+}
+
+message ListAgentsResponse {
+  int64 total = 1;         // total number of agents
+  int64 totalPage = 2;         // total number of pages
+  int64 currentPage = 3;         // current page
+  bool hasNext = 4;         // has next page
+  string nextCursor = 5;         // cursor for next page
+
+  map<string, Agent> agents = 6;         // list of agents with name as key
+}

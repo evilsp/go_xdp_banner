@@ -1,0 +1,6 @@
+:8080 {
+    bind vtcp/172.22.14.1
+    root * /home/joshua/Documents
+    file_server browse
+}
+

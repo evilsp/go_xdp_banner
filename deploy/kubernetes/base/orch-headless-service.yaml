@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: orch-headless
+spec:
+  selector:
+    app: orch
+  clusterIP: None
+  ports:
+  - name: grpc
+    port: 6061
+    targetPort: grpc
+  - name: http
+    port: 6062
+    targetPort: http

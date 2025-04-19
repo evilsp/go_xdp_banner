@@ -1,0 +1,45 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    # AddStrategy
+    - selector: "strategy.StrategyService.AddStrategy"
+      post: "/v1/strategy"
+      body: "*"
+    # UpdateStrategy
+    - selector: "strategy.StrategyService.UpdateStrategy"
+      patch: "/v1/strategy/{name}"
+      body: "*"
+    # DeleteStrategy
+    - selector: "strategy.StrategyService.DeleteStrategy"
+      delete: "/v1/strategy/{name}"
+    # GetStrategy
+    - selector: "strategy.StrategyService.GetStrategy"
+      get: "/v1/strategy/{name}"
+    # ListStrategy
+    - selector: "strategy.StrategyService.ListStrategy"
+      get: "/v1/strategies"
+    
+
+    # ApplyStrategy
+    - selector: "strategy.StrategyService.ApplyStrategy"
+      post: "/v1/strategy/apply"
+      body: "*"
+    
+    # GetRunningApplied
+    - selector: "strategy.StrategyService.GetRunningApplied"
+      get: "/v1/strategy/running/applied/{name}"
+    # ListRunningApplied
+    - selector: "strategy.StrategyService.ListRunningApplied"
+      get: "/v1/strategy/running/applieds"
+    
+    # GetHistoryApplied
+    - selector: "strategy.StrategyService.GetHistoryApplied"
+      get: "/v1/strategy/history/applied/{name}"
+    # ListHistoryApplied
+    - selector: "strategy.StrategyService.ListHistoryApplied"
+      get: "/v1/strategy/history/applieds"
+    # DeleteHistoryApplied
+    - selector: "strategy.StrategyService.DeleteHistoryApplied"
+      delete: "/v1/strategy/history/applied/{name}"

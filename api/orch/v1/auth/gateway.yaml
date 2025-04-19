@@ -1,0 +1,13 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    # Login
+    - selector: "auth.AuthService.Login"
+      post: "/v1/auth/login"
+      body: "*"
+
+    # Me
+    - selector: "auth.AuthService.Me"
+      get: "/v1/auth/me"

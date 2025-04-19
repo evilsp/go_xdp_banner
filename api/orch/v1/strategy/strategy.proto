@@ -1,0 +1,138 @@
+syntax = "proto3";
+
+package strategy;
+option go_package = "orch/v1/strategy";
+
+import "google/protobuf/empty.proto";
+
+
+service StrategyService {
+  rpc AddStrategy (Strategy) returns (google.protobuf.Empty);
+  rpc UpdateStrategy (Strategy) returns (google.protobuf.Empty);
+  rpc DeleteStrategy (DeleteStrategyRequest) returns ( google.protobuf.Empty);
+  rpc GetStrategy (GetStrategyRequest) returns (Strategy);
+  rpc ListStrategy (ListStrategyRequest) returns (ListStrategyResponse);
+
+  rpc ApplyStrategy (ApplyStrategyRequest) returns (google.protobuf.Empty);
+  
+  rpc GetRunningApplied(GetRunningAppliedRequest) returns (Applied);
+  rpc ListRunningApplied(ListRunningAppliedRequest) returns (ListRunningAppliedResponse);
+
+  rpc GetHistoryApplied(GetHistoryAppliedRequest) returns (Applied);
+  rpc ListHistoryApplied(ListHistoryAppliedRequest) returns (ListHistoryAppliedResponse);
+  rpc DeleteHistoryApplied(DeleteHistoryAppliedRequest) returns (google.protobuf.Empty);
+}
+
+
+/*
+  Strategy
+*/
+
+message Strategy {
+  string name = 1;
+  string nameSelector = 2;
+  string labelSelector = 3;
+  string action = 4;
+  string value = 5;
+}
+
+
+message DeleteStrategyRequest {
+  string name = 1;
+}
+
+
+message GetStrategyRequest {
+  string name = 1;
+}
+
+
+message ListStrategyRequest {
+  int64 pagesize = 1;
+  string cursor = 2;
+}
+
+message ListStrategyResponse {
+  int64 total = 2;
+  int64 totalPage = 3;
+  int64 currentPage = 4;
+  bool  hasNext = 5;
+  string nextCursor = 6;
+
+  map<string,Strategy> items = 7;
+}
+
+message ApplyStrategyRequest {
+  string strategy = 1;
+}
+
+/* 
+Applied
+*/
+
+enum AppliedStatus {
+  APPLIED_STATUS_UNSPECIFIED = 0;
+  APPLIED_STATUS_PENDING = 1;
+  APPLIED_STATUS_RUNNING = 2;
+  APPLIED_STATUS_SUCCESS = 3;
+  APPLIED_STATUS_FAILED = 4;
+}
+
+message Applied {
+  string name = 1;
+  repeated string agents = 2;
+  string action = 3;
+  string value = 4;
+  AppliedStatus status = 5;
+  repeated string error = 6;
+}
+
+/*
+ Applied Running
+*/
+
+message GetRunningAppliedRequest {
+  string name = 1;
+}
+
+message ListRunningAppliedRequest {
+  int64 pagesize = 1;
+  string cursor = 2;
+}
+
+message ListRunningAppliedResponse {
+  int64 total = 2;
+  int64 totalPage = 3;
+  int64 currentPage = 4;
+  bool  hasNext = 5;
+  string nextCursor = 6;
+
+  map<string,Applied> items = 7;
+}
+
+/*
+  Applied History
+*/
+
+message GetHistoryAppliedRequest {
+  string name = 1;
+}
+
+message ListHistoryAppliedRequest {
+  int64 pagesize = 1;
+  string cursor = 2;
+}
+
+message ListHistoryAppliedResponse {
+  int64 total = 2;
+  int64 totalPage = 3;
+  int64 currentPage = 4;
+  bool  hasNext = 5;
+  string nextCursor = 6;
+
+  map<string,Applied> items = 7;
+}
+
+message DeleteHistoryAppliedRequest {
+  string name = 1;
+}
