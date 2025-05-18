@@ -162,12 +162,14 @@ func processDeltas(
 				handler.OnAdd(key, obj, isInInitialList)
 			}
 		case Deleted:
-			// 在 store 里删除对象
-			if err := cacheStore.Delete(key); err != nil {
-				return err
+			// 在 store 里删除对象，返回 prev 值
+			if old, exists, err := cacheStore.Get(key); err == nil && exists {
+				if err := cacheStore.Delete(key); err != nil {
+					return err
+				}
+				handler.OnDelete(key, old)
 			}
 
-			handler.OnDelete(key, obj)
 		}
 	}
 	return nil

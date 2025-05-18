@@ -1,0 +1,17 @@
+[Unit]
+Description=XDP Banner Server
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/xdp-banner/build
+ExecStart=/root/xdp-banner/build/xdp-server server
+Restart=on-failure
+RestartSec=5s
+User=root
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

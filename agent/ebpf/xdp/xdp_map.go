@@ -58,6 +58,11 @@ func NewBannedIPXdpMap() (*BannedIPXdpMap, error) {
 		return nil, fmt.Errorf("failed to create pin directory %q: %w", pinDir, err)
 	}
 
+	// 移除已经存在的同名 map
+	if err := ClearMap(); err != nil {
+		return nil, err
+	}
+
 	// 3) 准备 pin 路径选项
 	opts := ebpf.CollectionOptions{
 		Maps: ebpf.MapOptions{

@@ -270,9 +270,11 @@ lpm_rule_check(const void *map, __u8 protocol, __u32 identity, __u16 sport, __u1
     key.lpm.prefixlen = PREFIX_NONE;
     if (bpf_map_lookup_elem(map, &key))
         return 1;
-
-	static const char fmt[] = "identity_ipcache map init for identity %u not exist\n";
+    
+    static const char fmt[] = "identity_ipcache map init for identity %u not exist\n";
     bpf_trace_printk(fmt, sizeof(fmt), identity);
+	static const char fmt1[] = "protocol: %u,sport: %u,dport: %U\n";
+    bpf_trace_printk(fmt1, sizeof(fmt1), protocol, sport, dport);
 
     return 0;  /* no match ⇒ pass */
 }

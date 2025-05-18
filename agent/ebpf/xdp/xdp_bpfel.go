@@ -122,6 +122,7 @@ type xdpProgramSpecs struct {
 // It can be passed ebpf.CollectionSpec.Assign.
 type xdpMapSpecs struct {
 	IdentityIpcache  *ebpf.MapSpec `ebpf:"identity_ipcache"`
+	PkgCountMetrics  *ebpf.MapSpec `ebpf:"pkg_count_metrics"`
 	XdpBannerBanlist *ebpf.MapSpec `ebpf:"xdp_banner_banlist"`
 }
 
@@ -152,12 +153,14 @@ func (o *xdpObjects) Close() error {
 // It can be passed to loadXdpObjects or ebpf.CollectionSpec.LoadAndAssign.
 type xdpMaps struct {
 	IdentityIpcache  *ebpf.Map `ebpf:"identity_ipcache"`
+	PkgCountMetrics  *ebpf.Map `ebpf:"pkg_count_metrics"`
 	XdpBannerBanlist *ebpf.Map `ebpf:"xdp_banner_banlist"`
 }
 
 func (m *xdpMaps) Close() error {
 	return _XdpClose(
 		m.IdentityIpcache,
+		m.PkgCountMetrics,
 		m.XdpBannerBanlist,
 	)
 }

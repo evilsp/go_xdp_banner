@@ -89,43 +89,90 @@ func (c *controller) Stop(ctx context.Context, e *fsm.Event) error {
 		return nil // 已经处于停止状态
 	}
 
-	for _, ifaceName := range c.attachIf {
-		if err := c.xdpProg.Detach(ifaceName); err != nil {
-			return fmt.Errorf("detach failed: %w", err)
-		}
-	}
-
-	c.attached = false
+	//	for _, ifaceName := range c.attachIf {
+	//		if err := c.xdpProg.Detach(ifaceName); err != nil {
+	//			return fmt.Errorf("detach failed: %w", err)
+	//		}
+	//	}
 
 	// cancel 掉 watchRules goroutine
 	if c.cancelCtx != nil {
 		c.cancelCtx()
 	}
 
+	if err := c.xdpProg.Close(); err != nil {
+		return err
+	}
+
+	if err := xdp.ClearMap(); err != nil {
+		return err
+	}
+
+	c.xdpProg = nil
+	c.xdpMap = nil
+	c.attached = false
+
 	return nil
 }
 
-func (c *controller) Reload(ctx context.Context, e *fsm.Event) error {
+func (c *controller) Reload(ctx context.Context, e *fsm.Event) (err error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	configName := e.Args[0].(string)
-	log.Info("Reloading XDP config", log.StringField("config", configName))
+	log.Info("Stopping XDP controller")
 
-	if c.xdpMap == nil || c.xdpProg == nil || !c.attached {
-		return fmt.Errorf("xdp not properly initialized")
+	if c.attached {
+		// 清理阶段
+		for _, iface := range c.attachIf {
+			_ = c.xdpProg.Detach(iface) // 忽略 error 或累计报告
+		}
+		if err := c.xdpProg.Close(); err != nil {
+			c.mu.Unlock()
+			return err
+		}
 	}
 
+	//	for _, ifaceName := range c.attachIf {
+	//		if err := c.xdpProg.Detach(ifaceName); err != nil {
+	//			return fmt.Errorf("detach failed: %w", err)
+	//		}
+	//	}
+
+	// cancel 掉 watchRules goroutine
 	if c.cancelCtx != nil {
 		c.cancelCtx()
 	}
 
+	if err := c.xdpProg.Close(); err != nil {
+		return err
+	}
+
+	if err := xdp.ClearMap(); err != nil {
+		return err
+	}
+
+	c.xdpProg = nil
+	c.xdpMap = nil
+	c.attached = false
+
+	configName := e.Args[0].(string)
+	log.Info("Reloading XDP controller", log.StringField("config", configName))
+	defer func() {
+		if err == nil {
+			client.SetConfigName(configName)
+		}
+	}()
+
 	c.ctx, c.cancelCtx = context.WithCancel(context.Background())
+	c.xdpMap, c.xdpProg, c.attachIf, err = ebpf.Init()
+	if err != nil {
+		return fmt.Errorf("ebpf init failed: %w", err)
+	}
+	c.attached = true
 
 	c.wg.Add(1)
 	go c.watchRules(configName)
 
-	client.SetConfigName(configName)
 	return nil
 }
 

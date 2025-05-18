@@ -12,6 +12,7 @@
 #include "lib/ctx.h"
 #include "lib/eps.h"
 #include "lib/eth.h"
+#include "lib/statistics.h"
 
 int check_v4(struct xdp_md *ctx){
     void *data_end = ctx_data_end(ctx);
@@ -19,10 +20,10 @@ int check_v4(struct xdp_md *ctx){
     struct iphdr *ipv4_hdr = data + sizeof(struct ethhdr);
     // ipv6_hdr + 1 == (void *)ipv6_hdr + sizeof(struct ipv6hdr), add an element
     if ((void*)(ipv4_hdr + 1) > data_end)    // 先保证能读整个最小 iphdr
-        return XDP_DROP;
+        goto drop;
     __u8 ihl = ipv4_hdr->ihl;
     if (ihl != 5)                      // verifier 能识别的常量比较
-        return XDP_DROP;
+        goto drop;
 
     __u8 hdr_protocol = ipv4_hdr->protocol;
     __u32 saddr = ipv4_hdr->saddr;
@@ -48,36 +49,42 @@ int check_v4(struct xdp_md *ctx){
         }
         struct icmphdr *icmp = (struct icmphdr *)(l4);
         if (ctx_no_room(icmp + 1, data_end)){
-            return XDP_DROP;
+            goto drop;
         }
         goto drop;
     case IPPROTO_TCP:
         struct tcphdr *tcp = (struct tcphdr *)(l4);
         if (ctx_no_room(tcp + 1, data_end))
-            return XDP_DROP;
+            goto drop;
         // Trans source pointer type to void* in order to avoid action undefined
         action = lpm_rule_check(&xdp_banner_banlist, hdr_protocol, identity->identity, \
             tcp -> source, tcp -> dest);
         if (action == 0) {
-            return XDP_PASS;
+            goto pass;
         }
         goto drop;
     case IPPROTO_UDP:
         struct udphdr *udp = (struct udphdr *)(l4);
         if (ctx_no_room(udp + 1, data_end))
-            return XDP_DROP;
+        goto drop;
         action = lpm_rule_check(&xdp_banner_banlist, hdr_protocol, identity->identity, \
             udp -> source, udp -> dest);
         if (action == 0) {
-            return XDP_PASS;
+            goto pass;
         }
         goto drop;
     default:
         goto drop;
     }
 drop:
+    static const char fmt[] = "Package dropped";
+    bpf_trace_printk(fmt, sizeof(fmt));
+    record_drop_count_metrics();
     return XDP_DROP;
 pass:
+    static const char fmt1[] = "Package passed";
+    bpf_trace_printk(fmt1, sizeof(fmt1));
+    record_pass_count_metrics();
     return XDP_PASS;
 }
 
@@ -88,7 +95,7 @@ int check_v6(struct xdp_md *ctx){
     struct ipv6hdr *ipv6_hdr = data + sizeof(struct ethhdr);
 
     if (ctx_no_room(ipv6_hdr + 1, data_end))
-        return XDP_DROP;
+        goto drop;
 
     __u8 hdr_protocol = ipv6_hdr->nexthdr;
     __u64 ipv6_fore_data = ((__u64)ipv6_hdr->saddr.s6_addr32[0] << 32) | ipv6_hdr->saddr.s6_addr32[1];
@@ -115,33 +122,39 @@ int check_v6(struct xdp_md *ctx){
         }
         struct icmp6hdr *icmp6 = (struct icmp6hdr *)(l4);
         if (ctx_no_room(icmp6 + 1, data_end))
-            return XDP_DROP;
+            goto drop;
         goto drop;
     case IPPROTO_TCP:
         struct tcphdr *tcp6 = (struct tcphdr *)(l4);
         if (ctx_no_room(tcp6 + 1, data_end))
-            return XDP_DROP;
+            goto drop;
         action = lpm_rule_check(&xdp_banner_banlist,hdr_protocol,identity->identity, \
             tcp6->source,tcp6->dest);
         if (action == 0)
-            return XDP_PASS;
+            goto pass;
         goto drop;
     case IPPROTO_UDP:
         struct udphdr *udp6 = (struct udphdr *)(l4);
         if (ctx_no_room(udp6 + 1, data_end))
-            return XDP_DROP;
+            goto drop;
         action = lpm_rule_check(&xdp_banner_banlist, hdr_protocol, identity->identity, \
             udp6 -> source, udp6 -> dest);
         if (action == 0) {
-            return XDP_PASS;
+            goto pass;
         }
         goto drop;
     default:
         goto drop;
     }
 drop:
+    static const char fmt[] = "Package dropped";
+    bpf_trace_printk(fmt, sizeof(fmt));
+    record_drop_count_metrics();
     return XDP_DROP;
 pass:
+    static const char fmt1[] = "Package passed";
+    bpf_trace_printk(fmt1, sizeof(fmt1));
+    record_pass_count_metrics();
     return XDP_PASS;
 }
 
@@ -156,22 +169,26 @@ static __always_inline int check_filters(struct xdp_md *ctx){
     int ret = XDP_PASS;
         __u16 proto;
 
-        if (!validate_ethertype(ctx, &proto))
-                return XDP_PASS;
+        if (!validate_ethertype(ctx, &proto)){
+            record_pass_count_metrics();
+            return XDP_PASS;
+        }
 
         ret = xdp_early_hook(ctx, proto);
-        if (ret != XDP_PASS)
-                return ret;
-
+        if (ret != XDP_PASS){
+            record_drop_count_metrics();
+            return ret;
+        }
+        
         switch (proto) {
         case bpf_htons(ETH_P_IP):
-                ret = check_v4(ctx);
-                break;
+            ret = check_v4(ctx);
+            break;
         case bpf_htons(ETH_P_IPV6):
-                ret = check_v6(ctx);
-                break;
+            ret = check_v6(ctx);
+            break;
         default:
-                break;
+            break;
         }
 
         return ret;

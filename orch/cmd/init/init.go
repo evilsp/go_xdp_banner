@@ -101,7 +101,7 @@ func (ic *initCmd) init(ctx context.Context) {
 	if exist, err := ic.certs.CAExists(ctx); err != nil {
 		log.Fatal("Check cluster exist failed", zap.String("err", err.Error()))
 	} else if exist {
-		log.Fatal("Cluster already exists, please run orch reset to clean up.")
+		log.Fatal("Cluster already exists, run orch reset to clean up.")
 	}
 
 	// start init
@@ -191,12 +191,12 @@ func (ic *initCmd) generateNodeCert(ca, priv []byte) error {
 }
 
 func (ic *initCmd) printResult() {
-	log.Info("===================Init Success======================")
-	log.Info("Please run the following command to join the cluster:")
-	log.Info("orch join" + " --etcd-endpoints " + ic.cli.Endpoints()[0] + " --token " + ic.token)
+	log.Info("-------------------Init Success-------------------")
+	log.Info("Run following command to join the cluster:")
+	log.Info("xdp-server join" + " --etcd-endpoints " + ic.cli.Endpoints()[0] + " --token " + ic.token)
 	log.Info("")
-	log.Info("*Please remember the token, it's the only way to join the cluster")
-	log.Info("=====================================================")
+	log.Info("**Remember the token, it's the only way to register to the cluster**")
+	log.Info("--------------------------------------------------")
 }
 
 func (ic *initCmd) undoInit(ctx context.Context) []error {

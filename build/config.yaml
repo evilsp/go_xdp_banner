@@ -1,0 +1,26 @@
+controllerName: "MyController"
+etcdSpec:
+  endpoints:
+    - "az.evilsp4.ltd:2379"
+  authentication:
+    enabled: false
+    username: root
+    password: xxx
+  dialTimeout: 5s
+  requestTimeout: 10s
+  leaseTTL: 60s
+  electionKey: "/election"
+metric:
+  enabled: false
+  port: 8080
+trace:
+  enabled: false
+  otel:
+    endpoint: "http://localhost:4317"
+    serviceName: "my-service"
+    sampleRatio: 1
+    exporter: "otlp"
+log:
+  enabled: true
+  level: "info"
+  path: "/var/log/myapp.log"

@@ -1,5 +1,0 @@
-nameReference:
-  - kind: Service
-    fieldSpecs:
-      - kind: Deployment
-        path: spec/template/spec/containers/env/value

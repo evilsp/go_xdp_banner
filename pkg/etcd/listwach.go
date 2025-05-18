@@ -248,6 +248,7 @@ func (cli *client) Watch(opt WatchOption) (WatchController, error) {
 
 	watchOpts := []clientv3.OpOption{
 		clientv3.WithPrefix(),
+		clientv3.WithPrevKV(),
 	}
 	if opt.Revision != 0 {
 		watchOpts = append(watchOpts, clientv3.WithRev(opt.Revision))

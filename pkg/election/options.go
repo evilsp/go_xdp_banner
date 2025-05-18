@@ -1,12 +1,12 @@
 package election
 
 const (
-	DefaultPrefix string = "election"
+	DefaultPrefix string = "/election"
 	DefaultTTL    int    = 10
 )
 
 type Options struct {
-	// Prefix is the prefix for the election keys. Default is "election".
+	// Prefix is the prefix for the election keys. Default is "/election".
 	Prefix string
 	// TTL is the time-to-live for the election keys. Default is 10 seconds.
 	TTL int

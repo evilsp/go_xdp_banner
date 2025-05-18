@@ -18,26 +18,26 @@ type XdpProgManager struct {
 }
 
 func NewXdpProgManager() (*XdpProgManager, error) {
-	// 1) 确保 pin 目录存在
+	// 确保 pin 目录存在
 	pinDir := filepath.Join("/sys/fs/bpf", "xdp_banner")
 	if err := os.MkdirAll(pinDir, 0755); err != nil {
-		return nil, fmt.Errorf("failed to create pin dir %q: %w", pinDir, err)
+		return nil, fmt.Errorf("创建 map pin dir %q 失败: %w", pinDir, err)
 	}
 
-	// 2) 加载 eBPF 程序 spec
+	// 加载程序
 	spec, err := loadXdp()
 	if err != nil {
-		return nil, fmt.Errorf("加载 eBPF 规范失败: %w", err)
+		return nil, fmt.Errorf("加载 eBPF 程序失败: %w", err)
 	}
 
-	// 3) 指定 map pin path，让 loader 去复用已经 pin 的 maps
+	// 指定 pin path
 	opts := ebpf.CollectionOptions{
 		Maps: ebpf.MapOptions{
 			PinPath: pinDir,
 		},
 	}
 
-	// 4) 只加载 cil_xdp_entry 程序
+	// 加载 cil_xdp_entry 程序
 	var objs xdpPrograms
 	if err := spec.LoadAndAssign(&objs, &opts); err != nil {
 		return nil, fmt.Errorf("加载 XDP 程序失败: %w", err)

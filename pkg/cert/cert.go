@@ -87,7 +87,7 @@ func SignCert(ca, caPriv []byte, capass string, name string, ipAddress []net.IP,
 		NotBefore:   time.Now(),
 		NotAfter:    time.Now().Add(365 * 24 * time.Hour), // 有效期 1 年
 		KeyUsage:    x509.KeyUsageDigitalSignature,
-		DNSNames:    []string{"localhost", "*.joshua.su", "*.302.kim", "*.xdp-banner.svc.cluster.local"},
+		DNSNames:    []string{"localhost", "*.joshua.su", "*.302.kim", "*.xdp-banner.svc.cluster.local", "*.evilsp4.ltd"},
 		IPAddresses: ipAddress,
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth, x509.ExtKeyUsageClientAuth},
 	}

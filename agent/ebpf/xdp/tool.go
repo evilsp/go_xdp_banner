@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"syscall"
@@ -81,4 +82,28 @@ func (b *BannedIPXdpMap) WaitForInterrupt() {
 	<-sig
 	log.Println("Received interrupt signal, shutting down...")
 	b.Close()
+}
+
+func ClearMap() error {
+	targets := []string{
+		"identity_ipcache",
+		"xdp_banner_banlist",
+	}
+
+	for _, name := range targets {
+		fullPath := filepath.Join("/sys/fs/bpf/xdp_banner", name)
+
+		if _, err := os.Stat(fullPath); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return fmt.Errorf("stat %s: %w", fullPath, err)
+		}
+
+		if err := os.Remove(fullPath); err != nil {
+			return fmt.Errorf("remove %s: %w", fullPath, err)
+		}
+		log.Printf("removed %s", fullPath)
+	}
+	return nil
 }

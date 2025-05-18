@@ -225,7 +225,7 @@ func DefaultOption() *ControllerOptions {
 			DialTimeout:    5 * time.Second,
 			RequestTimeout: 2 * time.Second,
 			LeaseTTL:       10 * time.Second,
-			ElectionKey:    "/election/key",
+			ElectionKey:    "/election",
 		},
 		Metric: MetricOptions{
 			Enabled:        false,

@@ -14,7 +14,7 @@ type Option struct {
 func DefaultOption() *Option {
 	return &Option{
 		&OrchOption{
-			Endpoints:   "127.0.0.1:6061",
+			Endpoints:   "az.evilsp4.ltd:6061",
 			CAPath:      icert.CAFile,
 			CertPath:    icert.CertFile,
 			CertKeyPath: icert.KeyFile,

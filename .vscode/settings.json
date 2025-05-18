@@ -2,7 +2,9 @@
     "files.associations": {
         "bpf.h": "c",
         "bpf_helpers.h": "c",
-        "sockmap.h": "c"
+        "sockmap.h": "c",
+        "eth.h": "c",
+        "statistics.h": "c"
     },
     "protoc": {
         "options": [

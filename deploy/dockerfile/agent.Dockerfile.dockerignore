@@ -1,9 +1,0 @@
-# ide
-.vscode/
-.idea/
-
-# ci
-.gitea
-
-test/
-orch/
